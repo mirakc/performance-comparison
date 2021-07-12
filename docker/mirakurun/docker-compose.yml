@@ -21,6 +21,7 @@ services:
       - ./config:/app-config:ro
     environment:
       <<: *default-environment
+      MALLOC_ARENA_MAX: 2
     extra_hosts:
       - "upstream:$UPSTREAM_IPADDR"
 
