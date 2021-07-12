@@ -1,0 +1,3 @@
+logLevel: 3
+port: 40772
+disableIPv6: true
