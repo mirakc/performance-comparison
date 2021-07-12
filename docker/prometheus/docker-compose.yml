@@ -3,7 +3,7 @@ version: '3'
 services:
   prometheus:
     image: prom/prometheus
-    container_name: mirakc-prometheus
+    container_name: prometheus
     init: true
     ports:
       - 9090:9090
@@ -17,5 +17,5 @@ services:
 
 volumes:
   prometheus-data:
-    name: mirakc_prometheus_data
+    name: prometheus_data
     driver: local
