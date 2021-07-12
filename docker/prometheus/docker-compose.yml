@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: mirakc-prometheus
+    init: true
+    ports:
+      - 9090:9090
+    volumes:
+      - prometheus-data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    environment:
+      TZ: $TZ
+    extra_hosts:
+      - "target:$TARGET_IPADDR"
+
+volumes:
+  prometheus-data:
+    name: mirakc_prometheus_data
+    driver: local
