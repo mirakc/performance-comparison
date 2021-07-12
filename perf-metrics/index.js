@@ -115,14 +115,14 @@ function timestamp() {
 
 function collectMetrics(target, duration, options) {
   const CHANNELS = [
-    { name: 'mx', sid: 3239123608 },
-    { name: 'cx', sid: 3274001056 },
     { name: 'ex', sid: 3274101064 },
-    { name: 'tx', sid: 3274201072 },
+    { name: 'ntv', sid: 3273801040 },
+    { name: 'etv', sid: 3273701032 },
+    { name: 'nhk', sid: 3273601024 },
+    { name: 'bs1', sid: 400101 },
+    { name: 'bsp', sid: 400103 },
     { name: 'bs-ntv', sid: 400141 },
     { name: 'bs-ex', sid: 400151 },
-    { name: 'bs-tbs', sid: 400161 },
-    { name: 'bs11', sid: 400211 },
   ];
 
   if (!target) {
