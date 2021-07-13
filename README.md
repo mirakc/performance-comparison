@@ -127,20 +127,27 @@ BASEURL=https://raw.githubusercontent.com/mirakc/performance-measurements/main
 # Replace with the IP address of your Mirakurun-compatible upstream server.
 UPSTREAM=192.168.2.34
 
-# When measuring mirakc-debian performance.
-curl -fsSL $BASEURL/launch-mirakc-debian.sh | sh -s -- -c $UPSTREAM
-
-# When measuring mirakc-aline performance.
+# mirakc-alpine
 curl -fsSL $BASEURL/launch-mirakc-alpine.sh | sh -s -- -c --alpine $UPSTREAM
 
-# When measuring mirakurun performance.
+# mirakc-debian
+curl -fsSL $BASEURL/launch-mirakc-debian.sh | sh -s -- -c $UPSTREAM
+
+# mirakurun
 curl -fsSL $BASEURL/launch-mirakurun.sh | sh -s -- -c $UPSTREAM
 ```
 
 Wait several minutes for the target server to go steady, then execute:
 
 ```shell
+# mirakc-alpine
 sh measure.sh http://target:40772 10m >/dev/null
+
+# mirakc-debian
+sh measure.sh http://target:40773 10m >/dev/null
+
+# mirakurun
+sh measure.sh http://target:40774 10m >/dev/null
 ```
 
 The command above performs:
