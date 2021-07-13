@@ -1,4 +1,4 @@
-# docker-mirakc
+# docker-mirakc-alpine
 
 ## How to use
 
@@ -25,7 +25,7 @@ Show logs:
 docker-compose logs
 ```
 
-Stop containers, and remove them together with a data volume for the `mirakc` container:
+Stop containers, and remove them together with a data volume for the `mirakc-alpine` container:
 
 ```shell
 docker-compose down -v

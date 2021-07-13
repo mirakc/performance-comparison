@@ -1,6 +1,7 @@
 PROGNAME="$(basename $0)"
 
 CLEAN=
+DISTRO=debian
 UPSTREAM_IPADDR=
 TZ=Asia/Tokyo
 
@@ -16,6 +17,9 @@ OPTIONS:
 
   -c, --clean
     Remove docker images.
+
+  --alpine
+    Use Alpine image.
 
 ARGUMENTS:
   <upstream>
@@ -35,6 +39,10 @@ do
       ;;
     '-c' | '--clean')
       CLEAN=1
+      shift
+      ;;
+    '--alpine')
+      DISTRO=alpine
       shift
       ;;
     *)
@@ -81,7 +89,7 @@ clean() {
   fi
   if [ -n "$CLEAN" ]
   then
-    $DOCKER image rm -f mirakc/mirakc:main-alpinee >/dev/null
+    $DOCKER image rm -f mirakc/mirakc:main-$DISTRO >/dev/null
     $DOCKER image rm -f prom/node-exporter:latest >/dev/null
   fi
 }
@@ -89,8 +97,8 @@ clean() {
 WORKDIR=$(mktemp -d)
 trap 'clean' EXIT INT TERM
 
-curl -fsSL $BASEURL/docker/mirakc/config.yml >$WORKDIR/config.yml
-curl -fsSL $BASEURL/docker/mirakc/docker-compose.yml >$WORKDIR/docker-compose.yml
+curl -fsSL $BASEURL/docker-$DISTRO/mirakc/config.yml >$WORKDIR/config.yml
+curl -fsSL $BASEURL/docker-$DISTRO/mirakc/docker-compose.yml >$WORKDIR/docker-compose.yml
 
 cat <<EOF >$WORKDIR/.env
 UPSTREAM_IPADDR='$UPSTREAM_IPADDR'

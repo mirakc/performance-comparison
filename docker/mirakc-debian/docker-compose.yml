@@ -5,8 +5,8 @@ x-environment: &default-environment
 
 services:
   mirakc:
-    container_name: mirakc
-    image: mirakc/mirakc:main-alpine
+    container_name: mirakc-debian
+    image: mirakc/mirakc:main-debian
     init: true
     restart: unless-stopped
     ports:
@@ -41,5 +41,5 @@ services:
 
 volumes:
   mirakc-epg:
-    name: mirakc_epg
+    name: mirakc_debian_epg
     driver: local
