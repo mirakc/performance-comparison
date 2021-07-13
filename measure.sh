@@ -18,13 +18,13 @@ else
 fi
 
 TARGET="$1"
-DURATION="$2:-10m"
+DURATION="$2"
 
-CPU_EXPR='100 * (1 - avg(irate(node_cpu_seconds_total{mode="idle"}[1m])))'
-MEMORY_EXPR='node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes)'
-LOAD1_EXPR='node_load1'
-TX_EXPR='irate(node_network_transmit_bytes_total{device=~"eth0|enp6s0"}[1m]) * 8'
-RX_EXPR='irate(node_network_receive_bytes_total{device=~"eth0|enp6s0"}[1m]) * 8'
+CPU_EXPR='round(100 * (1 - avg(irate(node_cpu_seconds_total{mode="idle"}[1m]))))'
+MEMORY_EXPR='round((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes)) / 1000000)'
+LOAD1_EXPR='round(node_load1 * 100) / 100'
+TX_EXPR='round((irate(node_network_transmit_bytes_total{device=~"^eth.*|^en.*"}[1m]) * 8) / 1000000)'
+RX_EXPR='round((irate(node_network_receive_bytes_total{device=~"^eth.*|^en.*"}[1m]) * 8) / 1000000)'
 
 NODE="$DOCKER run --rm -i -v $BASEDIR/perf-metrics:$BASEDIR/perf-metrics --network host $NODE_IMAGE node"
 

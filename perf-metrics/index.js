@@ -237,23 +237,32 @@ async function showSummary() {
 
   function showSystemMetrics(metrics) {
     const columns = [
-      'name', 'min', 'max',
+      'name', 'base', 'min', 'max', 'minp', 'maxp'
     ];
     const table = new Table();
     appendRow(table, columns, {
       name: 'NAME',
+      base: 'BASE',
       min: 'MIN',
       max: 'MAX',
+      minp: 'MIN+',
+      maxp: 'MAX+',
     });
     table.pushDelimeter(columns);
     const start = (metrics.start / 1000) + 120;
     const end = (metrics.end / 1000) - 120;
     for (const met of metrics.system) {
+      const base = Number(met.values[0][1]);
       const vals = met.values.filter((v) => v[0] >= start && v[0] <= end);
+      const min = vals.reduce((a, v) => Math.min(a, Number(v[1])), Number.MAX_VALUE);
+      const max = vals.reduce((a, v) => Math.max(a, Number(v[1])), Number.MIN_VALUE);
       appendRow(table, columns, {
         name: met.label,
-        min: vals.reduce((a, v) => Math.min(a, Number(v[1])), Number.MAX_VALUE),
-        max: vals.reduce((a, v) => Math.max(a, Number(v[1])), Number.MIN_VALUE),
+        base,
+        min,
+        max,
+        minp: Math.max(min - base, 0),
+        maxp: Math.max(max - base, 0),
       });
     }
     console.error(table.print());
