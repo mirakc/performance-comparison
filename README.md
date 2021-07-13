@@ -74,6 +74,8 @@ tx      0     74    119   74    119
 rx      0     152   153   152   153
 ```
 
+The `murakurun` container were sometimes killed.  Maybe, the OOM killer killed it.
+
 ## Environment
 
 Target Server:
