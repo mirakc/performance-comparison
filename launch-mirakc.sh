@@ -97,8 +97,8 @@ clean() {
 WORKDIR=$(mktemp -d)
 trap 'clean' EXIT INT TERM
 
-curl -fsSL $BASEURL/docker-$DISTRO/mirakc/config.yml >$WORKDIR/config.yml
-curl -fsSL $BASEURL/docker-$DISTRO/mirakc/docker-compose.yml >$WORKDIR/docker-compose.yml
+curl -fsSL $BASEURL/docker/mirakc-$DISTRO/config.yml >$WORKDIR/config.yml
+curl -fsSL $BASEURL/docker/mirakc-$DISTRO/docker-compose.yml >$WORKDIR/docker-compose.yml
 
 cat <<EOF >$WORKDIR/.env
 UPSTREAM_IPADDR='$UPSTREAM_IPADDR'
