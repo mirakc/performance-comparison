@@ -68,9 +68,3 @@ tuners:
 filters:
   decode-filter:
     command: cat
-
-jobs:
-  sync-clocks:
-    disabled: true
-  update-schedules:
-    disabled: true
