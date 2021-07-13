@@ -5,75 +5,154 @@ The performance metrics described in
 using the following command executed on a local PC:
 
 ```console
-$ sh measure.sh http://mirakc:40772 >/dev/null
-Reading TS packets from mx...
-Reading TS packets from cx...
+$ sh measure.sh http://target:40772 10m >/dev/null
 Reading TS packets from ex...
-Reading TS packets from tx...
+Reading TS packets from ntv...
+Reading TS packets from etv...
+Reading TS packets from nhk...
+Reading TS packets from bs1...
+Reading TS packets from bsp...
 Reading TS packets from bs-ntv...
 Reading TS packets from bs-ex...
-Reading TS packets from bs-tbs...
-Reading TS packets from bs11...
 CHANNEL  #BYTES      #PACKETS  #DROPS
 -------  ----------  --------  ------
-mx       754524464   4013428   0
-cx       1027186880  5463760   0
-ex       1061083280  5644060   0
-tx       1022076476  5436577   0
-bs-ntv   1013682088  5391926   0
-bs-ex    1094240276  5820427   0
-bs-tbs   1074745616  5716732   0
-bs11     1395304792  7421834   0
+ex       1140965376  6068964   0
+ntv      1195360256  6358299   0
+etv      1131560960  6018941   0
+nhk      1103233024  5868260   0
+bs1      1174650880  6248142   0
+bsp      1115684864  5934493   0
+bs-ntv   887750656   4722077   0
+bs-ex    1125695488  5987741   0
 
-NAME    MIN                 MAX
-------  ------------------  ------------------
-cpu     31.790845305783343  36.841051648131206
-memory  232095744           233185280
-load1   1.36                2.84
-tx      111210158.4         121260930.33797747
-rx      1020067.2           1085208.5333333334
+NAME    BASE  MIN   MAX   MIN+  MAX+
+------  ----  ----  ----  ----  ----
+cpu     1     45    48    44    47
+memory  301   311   313   10    12
+load1   0     0.93  2.45  0.93  2.45
+tx      0     118   134   118   134
+rx      0     154   154   154   154
 
-http://localhost:9090/graph?<query parameters for showing measurement results>
+http://localhost:9090/graph?<query parameters for showing metrics>
 ```
 
-with the following environment:
+## Results
 
-* Tuner Server
-  * ROCK64 (DRAM: 4GB)
-    * The script above cannot work with Mirakurun running on ROCK64 (DRAM: 1GB)
-      due to a lack of memory as described in the previous section
-  * [Armbian]/Buster, Linux rock 4.4.182-rockchip64
-  * [px4_drv] a1b81c3f76bab5182370cb41216bff964a24fd21@master
-    * `coherent_pool=4M` is required for working with PLEX PX-Q3U4
-  * Default `server.workers` (4 = the number of CPU cores)
-  * `MALLOC_ARENA_MAX=2`
-* Tuner
-  * PLEX PX-Q3U4
-* Docker
-  * version 19.03.1, build 74b1e89
-  * Server processes were executed in a docker container
+mirakc/1.0.0 (Debian):
 
-where a Prometheus server was running on the local PC.
+```
+NAME    BASE  MIN   MAX   MIN+  MAX+
+------  ----  ----  ----  ----  ----
+cpu     1     46    47    45    46
+memory  288   309   310   21    22
+load1   0     1.65  2.43  1.65  2.43
+tx      0     131   136   131   136
+rx      0     153   154   153   154
+```
 
-[measure.sh](./measure.sh) performs:
+mirakc/1.0.0 (Apline):
+
+```
+NAME    BASE  MIN   MAX   MIN+  MAX+
+------  ----  ----  ----  ----  ----
+cpu     1     45    48    44    47
+memory  301   311   313   10    12
+load1   0     0.93  2.45  0.93  2.45
+tx      0     118   134   118   134
+rx      0     154   154   154   154
+```
+
+Mirakurun/3.6.0:
+
+```
+NAME    BASE  MIN   MAX   MIN+  MAX+
+------  ----  ----  ----  ----  ----
+cpu     1     52    55    51    54
+memory  400   1027  3186  627   2786
+load1   0     1.76  2.61  1.76  2.61
+tx      0     88    107   88    107
+rx      0     152   153   152   153
+```
+
+## Environment
+
+Target Server:
+
+* ROCK64 (DRAM: 4GB)
+  * [Armbian] 21.05.6 Buster
+  * Linux 5.10.43-rockchip64
+  * Mirakurun requires memory larger than 1GB for performance measurements
+* Receive TS packets from the upstream server by using `curl`
+* `cat` is used as a decoder
+* Default `server.workers` (4 = the number of CPU cores)
+* `MALLOC_ARENA_MAX=2`
+
+Upstream Server:
+
+* ROCK64 (DRAM: 1GB)
+  * [Armbian] 21.05.6 Buster
+  * Linux 5.10.43-rockchip64
+* mirakc/mirakc:main-alpine
+* PLEX PX-Q3U4
+
+Docker Engine:
+
+* 20.10.7
+
+## How to collect performance metrics
+
+Create `docker/prometheus/.env`:
+
+```shell
+# Replace with the IP address of your target machine.
+TARGET_IPADDR=192.168.1.23
+
+cat <<EOF >docker/prometheus/.env
+TARGET_IPADDR=$TARGET_IPADDR
+TZ=Asia/Tokyo
+EOF
+```
+
+Launch a Prometheus server on the local PC:
+
+```shell
+docker-compose -f docker/prometheus/docker-compose.yml up -d
+```
+
+Launch a target server on the target machine:
+
+```shell
+BASEURL=https://raw.githubusercontent.com/mirakc/performance-measurements/main
+
+# Replace with the IP address of your Mirakurun-compatible upstream server.
+UPSTREAM=192.168.2.34
+
+# When measuring mirakc-debian performance.
+curl -fsSL $BASEURL/launch-mirakc-debian.sh | sh -s -- -c $UPSTREAM
+
+# When measuring mirakc-aline performance.
+curl -fsSL $BASEURL/launch-mirakc-alpine.sh | sh -s -- -c --alpine $UPSTREAM
+
+# When measuring mirakurun performance.
+curl -fsSL $BASEURL/launch-mirakurun.sh | sh -s -- -c $UPSTREAM
+```
+
+Wait several minutes for the target server to go steady, then execute:
+
+```shell
+sh measure.sh http://target:40772 10m >/dev/null
+```
+
+The command above performs:
 
 * Receiving TS streams from 4 GR and 4 BS services for 10 minutes
-  * `cat` is used as post-filter
 * Collecting system metrics by using [Prometheus] and [node_exporter]
 * Counting the number of dropped TS packets by using [node-aribts]
 
-The script should be run when the target server is idle.
-
-You can spawn a Prometheus server using a `docker-compose.yml` in the
-[docker/prometheus](../docker/prometheus) folder if you have never used it
-before.  See [this document](../docker/prometheus/README.md) in the folder
-before using it.
-
-Several hundreds or thousands of dropped packets were sometimes detected during
-the performance measurement.  The same situation occurred in Mirakurun.
+Several hundreds or thousands of dropped packets were sometimes detected during the performance
+measurement.  The same situation also occurred in Mirakurun.
 
 [Armbian]: https://www.armbian.com/rock64/
-[px4_drv]: https://github.com/nns779/px4_drv
 [Prometheus]: https://prometheus.io/
 [node_exporter]: https://github.com/prometheus/node_exporter
 [node-aribts]: https://www.npmjs.com/package/aribts
