@@ -130,10 +130,10 @@ BASEURL=https://raw.githubusercontent.com/mirakc/performance-measurements/main
 UPSTREAM=192.168.2.34
 
 # mirakc-alpine
-curl -fsSL $BASEURL/launch-mirakc-alpine.sh | sh -s -- -c --alpine $UPSTREAM
+curl -fsSL $BASEURL/launch-mirakc.sh | sh -s -- -c --alpine $UPSTREAM
 
 # mirakc-debian
-curl -fsSL $BASEURL/launch-mirakc-debian.sh | sh -s -- -c $UPSTREAM
+curl -fsSL $BASEURL/launch-mirakc.sh | sh -s -- -c $UPSTREAM
 
 # mirakurun
 curl -fsSL $BASEURL/launch-mirakurun.sh | sh -s -- -c $UPSTREAM
