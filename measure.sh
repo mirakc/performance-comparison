@@ -57,11 +57,14 @@ rx() {
 }
 
 summary() {
-  node $BASEDIR/perf-metrics summary
+  $NODE $BASEDIR/perf-metrics summary
 }
 
 graph_url() {
-  node $BASEDIR/perf-metrics prom-graph-url
+  $NODE $BASEDIR/perf-metrics prom-graph-url
 }
+
+# install modules
+$DOCKER run --rm -i -v $BASEDIR/perf-metrics:$BASEDIR/perf-metrics --network host -w $BASEDIR/perf-metrics $NODE_IMAGE npm i
 
 stream | cpu | memory | load1 | tx | rx | summary | graph_url
