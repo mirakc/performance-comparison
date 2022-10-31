@@ -58,16 +58,22 @@ fi
 BASEURL=https://raw.githubusercontent.com/mirakc/performance-measurements/main
 WORKDIR=
 
-if [ "$(uname)" != Linux ] || id -nG | grep -q docker; then
-  DOCKER='docker'
-else
-  DOCKER='sudo docker'
-fi
+DOCKER='docker'
 
-if [ "$(uname)" != Linux ] || id -nG | grep -q docker; then
+if which docker-compose >/dev/null 2>&1
+then
   DOCKER_COMPOSE='docker-compose'
 else
-  DOCKER_COMPOSE='sudo docker-compose'
+  DOCKER_COMPOSE='docker compose'
+fi
+
+if [ "$(uname)" != Linux ] || id -nG | grep -q docker
+then
+  DOCKER="$DOCKER"
+  DOCKER_COMPOSE="$DOCKER_COMPOSE"
+else
+  DOCKER="sudo $DOCKER"
+  DOCKER_COMPOSE="sudo $DOCKER_COMPOSE"
 fi
 
 clean() {
