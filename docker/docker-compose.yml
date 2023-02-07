@@ -1,0 +1,84 @@
+x-environment: &default-environment
+  TZ: $TZ
+
+x-common: &common
+  init: true
+  restart: unless-stopped
+  depends_on:
+    - prometheus-node-exporter
+  extra_hosts:
+    - "upstream:$UPSTREAM_IPADDR"
+
+x-mirakc-common: &mirakc-common
+  <<: *common
+  environment:
+    <<: *default-environment
+    RUST_LOG: info
+    RUST_LOG_STYLE: never
+    MALLOC_ARENA_MAX: 2
+
+services:
+  mirakc-alpine:
+    <<: *mirakc-common
+    container_name: mirakc-alpine
+    image: mirakc/mirakc:main-alpine
+    ports:
+      - '40772:40772'
+    volumes:
+      - mirakc-alpine-epg:/var/lib/mirakc/epg
+      - ./mirakc/config.yml:/etc/mirakc/config.yml:ro
+
+  mirakc-debian:
+    <<: *mirakc-common
+    container_name: mirakc-debian
+    image: mirakc/mirakc:main-debian
+    ports:
+      - '40773:40772'
+    volumes:
+      - mirakc-debian-epg:/var/lib/mirakc/epg
+      - ./mirakc/config.yml:/etc/mirakc/config.yml:ro
+
+  mirakurun:
+    <<: *common
+    container_name: mirakurun
+    image: chinachu/mirakurun
+    command: >-
+      sh /app/run.sh
+    cap_add:
+      - SYS_ADMIN
+      - SYS_NICE
+    ports:
+      - '40774:40772'
+    volumes:
+      - mirakurun-data:/app-data
+      - ./mirakurun/run.sh:/app/run.sh
+      - ./mirakurun/config:/app-config:ro
+    environment:
+      <<: *default-environment
+      MALLOC_ARENA_MAX: 2
+
+  prometheus-node-exporter:
+    container_name: prometheus-node-exporter
+    image: prom/node-exporter
+    command: >-
+      --path.rootfs=/host
+    restart: unless-stopped
+    network_mode: host
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+    environment:
+      <<: *default-environment
+    logging:
+      driver: none
+
+volumes:
+  mirakc-alpine-epg:
+    name: mirakc_alpine_epg
+    driver: local
+  mirakc-debian-epg:
+    name: mirakc_debian_epg
+    driver: local
+  mirakurun-data:
+    name: mirakurun_data
+    driver: local

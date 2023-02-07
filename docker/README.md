@@ -1,4 +1,4 @@
-# docker-mirakc-alpine
+# docker
 
 ## How to use
 
@@ -11,7 +11,8 @@ TZ=Asia/Tokyo
 ```
 
 The `UPSTREAM_IPADDR` environment variables defines an IP address of an upstream
-Mirakurun-compatible server which provides TS streams for performance measurements.
+Mirakurun-compatible server which is listening on `40772` TCP port and provides
+TS streams for performance measurements.
 
 Create containers, and start them in the background:
 
@@ -25,7 +26,7 @@ Show logs:
 docker-compose logs
 ```
 
-Stop containers, and remove them together with a data volume for the `mirakc-alpine` container:
+Stop containers, and remove them together with data volumes:
 
 ```shell
 docker-compose down -v

@@ -1,40 +1,40 @@
 - name: gr1
   types: [GR]
   command: >-
-    curl -sG http://upstream:40772/api/channels/GR/<channel>/stream
+    curl -sG http://upstream:40772/api/channels/GR/<channel>/stream?decode=0
   decoder: cat
 - name: gr2
   types: [GR]
   command: >-
-    curl -sG http://upstream:40772/api/channels/GR/<channel>/stream
+    curl -sG http://upstream:40772/api/channels/GR/<channel>/stream?decode=0
   decoder: cat
 - name: gr3
   types: [GR]
   command: >-
-    curl -sG http://upstream:40772/api/channels/GR/<channel>/stream
+    curl -sG http://upstream:40772/api/channels/GR/<channel>/stream?decode=0
   decoder: cat
 - name: gr4
   types: [GR]
   command: >-
-    curl -sG http://upstream:40772/api/channels/GR/<channel>/stream
+    curl -sG http://upstream:40772/api/channels/GR/<channel>/stream?decode=0
   decoder: cat
 - name: bs1
   types: [BS]
   command: >-
-    curl -sG http://upstream:40772/api/channels/BS/<channel>/stream
+    curl -sG http://upstream:40772/api/channels/BS/<channel>/stream?decode=0
   decoder: cat
 - name: bs2
   types: [BS]
   command: >-
-    curl -sG http://upstream:40772/api/channels/BS/<channel>/stream
+    curl -sG http://upstream:40772/api/channels/BS/<channel>/stream?decode=0
   decoder: cat
 - name: bs3
   types: [BS]
   command: >-
-    curl -sG http://upstream:40772/api/channels/BS/<channel>/stream
+    curl -sG http://upstream:40772/api/channels/BS/<channel>/stream?decode=0
   decoder: cat
 - name: bs4
   types: [BS]
   command: >-
-    curl -sG http://upstream:40772/api/channels/BS/<channel>/stream
+    curl -sG http://upstream:40772/api/channels/BS/<channel>/stream?decode=0
   decoder: cat

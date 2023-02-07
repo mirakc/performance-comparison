@@ -1,8 +1,8 @@
 # Performance measurements of tuner servers
 
 The performance metrics described in
-[this page](https://github.com/mirakc/mirakc#8-ts-streams-at-the-same-time) were collected by
-using the following command executed on a local PC:
+[this page](https://github.com/mirakc/mirakc#8-ts-streams-at-the-same-time) were
+collected by using the following command executed on a local PC:
 
 ```console
 $ sh measure.sh http://target:40772 10m >/dev/null
@@ -16,90 +16,89 @@ Reading TS packets from bs-ntv...
 Reading TS packets from bs-ex...
 CHANNEL  #BYTES      #PACKETS  #DROPS
 -------  ----------  --------  ------
-ex       1139261440  6059901   0
-ntv      1159512064  6167617   0
-etv      1139261440  6059901   0
-nhk      1111244800  5910876   0
-bs1      1324810240  7046862   1
-bsp      1187430400  6316119   0
-bs-ntv   1145159680  6091274   0
-bs-ex    1126694912  5993058   0
+ex       1150992384  6122299   0
+ntv      1153122304  6133629   0
+etv      1179140096  6272021   0
+nhk      1140899840  6068616   0
+bs1      1436811264  7642613   0
+bsp      1294368768  6884940   0
+bs-ntv   1149140992  6112452   0
+bs-ex    1186283520  6310018   0
 
 NAME    BASE  MIN   MAX   MIN+  MAX+
 ------  ----  ----  ----  ----  ----
-cpu     1     47    48    46    47
-memory  424   436   438   12    14
-load1   0     1.71  2.55  1.71  2.55
-tx      0     131   137   131   137
-rx      0     153   154   153   154
+cpu     2     28    30    26    28
+memory  221   247   248   26    27
+load1   0.33  0.92  2.14  0.59  1.81
+tx      0     132   140   132   140
+rx      0     155   155   155   155
 
 http://localhost:9090/graph?<query parameters for showing metrics>
 ```
 
 ## Results
 
-mirakc/1.0.0 (Apline):
+mirakc/2.0.0 (Apline):
 
 ```
 NAME    BASE  MIN   MAX   MIN+  MAX+
 ------  ----  ----  ----  ----  ----
-cpu     1     47    48    46    47
-memory  424   436   438   12    14
-load1   0     1.71  2.55  1.71  2.55
-tx      0     131   137   131   137
-rx      0     153   154   153   154
+cpu     2     28    30    26    28
+memory  221   247   248   26    27
+load1   0.33  0.92  2.14  0.59  1.81
+tx      0     132   140   132   140
+rx      0     155   155   155   155
 ```
 
-mirakc/1.0.0 (Debian):
-
-```
-NAME    BASE  MIN   MAX   MIN+  MAX+
-------  ----  ----  ----  ----  ----
-cpu     1     47    54    46    53
-memory  426   446   447   20    21
-load1   0     1.67  2.75  1.67  2.75
-tx      0     118   134   118   134
-rx      0     135   154   135   154
-```
-
-Mirakurun/3.6.0:
+mirakc/2.0.0 (Debian):
 
 ```
 NAME    BASE  MIN   MAX   MIN+  MAX+
 ------  ----  ----  ----  ----  ----
-cpu     1     53    60    52    59
-memory  510   1375  3855  865   3345
-load1   0     1.52  2.9   1.52  2.9
-tx      0     74    119   74    119
-rx      0     152   153   152   153
+cpu     1     27    29    26    28
+memory  226   252   253   26    27
+load1   0.06  0.7   1.63  0.64  1.57
+tx      0     125   135   125   135
+rx      0     155   155   155   155
 ```
 
-The `mirakurun` container were sometimes killed.  Maybe, the OOM killer killed it.
+Mirakurun/3.9.0-rc.2:
+
+```
+NAME    BASE  MIN   MAX   MIN+  MAX+
+------  ----  ----  ----  ----  ----
+cpu     1     33    37    32    36
+memory  299   411   420   112   121
+load1   0.14  1.05  1.93  0.91  1.79
+tx      0     122   136   122   136
+rx      0     154   155   154   155
+```
 
 ## Environment
 
 Target Server:
 
-* ROCK64 (DRAM: 4GB)
-  * [Armbian] 21.05.6 Buster
-  * Linux 5.10.43-rockchip64
-  * Mirakurun requires memory larger than 1GB for performance measurements
+* Raspberry Pi 4B (DRAM: 4GB)
+  * [Raspberry Pi OS (64-bit)] Lite
+  * Linux rpi 5.15.84-v8+
+  * Make sure that `cgroup_memory=1 cgroup_enable=memory` is specified in
+    `cmdline.txt`
+    * See https://github.com/raspberrypi/Raspberry-Pi-OS-64bit/issues/124
 * Receive TS packets from the upstream server by using `curl`
 * `cat` is used as a decoder
-* Default `server.workers` (4 = the number of CPU cores)
 * `MALLOC_ARENA_MAX=2`
 
 Upstream Server:
 
 * ROCK64 (DRAM: 1GB)
-  * [Armbian] 21.05.6 Buster
-  * Linux 5.10.43-rockchip64
+  * [Armbian] 22.11.4 Bullseye
+  * Linux 5.15.89-rockchip64
 * mirakc/mirakc:main-alpine
 * PLEX PX-Q3U4
 
 Docker Engine:
 
-* 20.10.7
+* 23.0.0
 
 ## How to collect performance metrics
 
@@ -118,38 +117,36 @@ EOF
 Launch a Prometheus server on the local PC:
 
 ```shell
-docker-compose -f docker/prometheus/docker-compose.yml up -d
+docker compose -f docker/prometheus/docker-compose.yml up -d
 ```
 
-Launch a target server on the target machine:
+Setup a remote environment for performance measurements:
 
 ```shell
-BASEURL=https://raw.githubusercontent.com/mirakc/performance-measurements/main
-
 # Replace with the IP address of your Mirakurun-compatible upstream server.
 UPSTREAM=192.168.2.34
 
-# mirakc-alpine
-curl -fsSL $BASEURL/launch-mirakc.sh | sh -s -- -c --alpine $UPSTREAM
-
-# mirakc-debian
-curl -fsSL $BASEURL/launch-mirakc.sh | sh -s -- -c $UPSTREAM
-
-# mirakurun
-curl -fsSL $BASEURL/launch-mirakurun.sh | sh -s -- -c $UPSTREAM
+sh remote.sh -r $TARGET_IPADDR setup $UPSTREAM
 ```
 
-Wait several minutes for the target server to go steady, then execute:
+Perform measurement for each container:
 
 ```shell
 # mirakc-alpine
+sh remote.sh -r $TARGET_IPADDR up mirakc-alpine
+# Wait several minutes for the target server to go steady, then:
 sh measure.sh http://target:40772 10m >/dev/null
+sh remote.sh -r $TARGET_IPADDR down
 
 # mirakc-debian
+sh remote.sh -r $TARGET_IPADDR up mirakc-debian
 sh measure.sh http://target:40773 10m >/dev/null
+sh remote.sh -r $TARGET_IPADDR down
 
 # mirakurun
+sh remote.sh -r $TARGET_IPADDR up mirakurun
 sh measure.sh http://target:40774 10m >/dev/null
+sh remote.sh -r $TARGET_IPADDR down
 ```
 
 The command above performs:
@@ -158,9 +155,10 @@ The command above performs:
 * Collecting system metrics by using [Prometheus] and [node_exporter]
 * Counting the number of dropped TS packets by using [node-aribts]
 
-Several hundreds or thousands of dropped packets were sometimes detected during the performance
-measurement.  The same situation also occurred in Mirakurun.
+Several hundreds or thousands of dropped packets were sometimes detected during
+the performance measurement.  The same situation also occurred in Mirakurun.
 
+[Raspberry Pi OS (64-bit)]: https://www.raspberrypi.com/software/operating-systems/#raspberry-pi-os-64-bit
 [Armbian]: https://www.armbian.com/rock64/
 [Prometheus]: https://prometheus.io/
 [node_exporter]: https://github.com/prometheus/node_exporter
